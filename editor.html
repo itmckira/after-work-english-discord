@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord 英語內容編輯器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #5865F2;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.6;
+        }
+
+        .preview-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .preview-box {
+            background: #f7f9fc;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #2c2f33;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #5865F2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ed4245;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c03537;
+        }
+
+        .success-message, .error-message {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .file-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .file-item {
+            padding: 8px;
+            background: #f7f9fc;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .file-item:hover {
+            border-color: #5865F2;
+            background: #eef0ff;
+        }
+
+        .file-item.exists {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Discord 英語內容編輯器</h1>
+            <p>輕鬆管理每日英語學習內容</p>
+        </div>
+
+        <div class="content">
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="form-group">
+                <label>現有檔案（綠色表示已存在）</label>
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="daySelect">選擇日期 (Day)</label>
+                <select id="daySelect">
+                    <option value="">-- 選擇要編輯的日期 --</option>
+                </select>
+                <div class="help-text">選擇 1-31 對應每月的日期</div>
+            </div>
+
+            <div class="form-group">
+                <label for="contentInput">Discord 訊息內容</label>
+                <textarea id="contentInput" placeholder="輸入要發送到 Discord 的內容...
+
+範例格式：
+🌱 **Daily Gentle English**
+
+Today's sentence:
+&quot;I'm not good at English, but I'm still trying.&quot;
+
+Meaning:
+我英文不好，但我還在努力。"></textarea>
+                <div class="help-text">支援 Discord Markdown 格式：**粗體**、*斜體*、`程式碼`</div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-title">📋 預覽</div>
+                <div class="preview-box" id="preview">輸入內容後將在此顯示預覽...</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="loadContent()">📂 載入</button>
+                <button class="btn-primary" onclick="saveContent()">💾 儲存</button>
+                <button class="btn-secondary" onclick="downloadJSON()">⬇️ 下載</button>
+                <button class="btn-danger" onclick="clearContent()">🗑️ 清空</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDaySelect();
+            updateFileList();
+        });
+
+        // 初始化日期選項
+        function initializeDaySelect() {
+            const select = document.getElementById('daySelect');
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                const dayNum = String(i).padStart(2, '0');
+                option.value = dayNum;
+                option.textContent = `Day ${dayNum}`;
+                select.appendChild(option);
+            }
+        }
+
+        // 更新檔案列表顯示
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+
+            for (let i = 1; i <= 31; i++) {
+                const dayNum = String(i).padStart(2, '0');
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.textContent = dayNum;
+                fileItem.onclick = () => {
+                    document.getElementById('daySelect').value = dayNum;
+                    loadContent();
+                };
+
+                // 檢查是否已有儲存的內容
+                if (localStorage.getItem(`day${dayNum}`)) {
+                    fileItem.classList.add('exists');
+                }
+
+                fileList.appendChild(fileItem);
+            }
+        }
+
+        // 即時預覽
+        document.getElementById('contentInput').addEventListener('input', function() {
+            const preview = document.getElementById('preview');
+            const content = this.value.trim();
+            preview.textContent = content || '輸入內容後將在此顯示預覽...';
+        });
+
+        // 載入內容
+        function loadContent() {
+            const day = document.getElementById('daySelect').value;
+            if (!day) {
+                showError('請先選擇日期');
+                return;
+            }
+
+            const saved = localStorage.getItem(`day${day}`);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    document.getElementById('contentInput').value = data.content;
+                    document.getElementById('preview').textContent = data.content;
+                    showSuccess(`已載入 Day ${day} 的內容`);
+                } catch (e) {
+                    showError('載入失敗：資料格式錯誤');
+                }
+            } else {
+                showError(`Day ${day} 尚未建立內容`);
+            }
+        }
+
+        // 儲存內容
+        function saveContent() {
+            const day = document.getElementById('daySelect').value;
+            const content = document.getElementById('contentInput').value.trim();
+
+            if (!day) {
+                showError('請選擇日期');
+                return;
+            }
+
+            if (!content) {
+                showError('請輸入內容');
+                return;
+            }
+
+            const data = {
+                content: content
+            };
+
+            localStorage.setItem(`day${day}`, JSON.stringify(data));
+            showSuccess(`✅ Day ${day} 儲存成功！`);
+            updateFileList();
+        }
+
+        // 下載 JSON 檔案
+        function downloadJSON() {
+            const day = document.getElementById('daySelect').value;
+            const content = document.getElementById('contentInput').value.trim();
+
+            if (!day) {
+                showError('請選擇日期');
+                return;
+            }
+
+            if (!content) {
+                showError('請輸入內容');
+                return;
+            }
+
+            const data = {
+                content: content
+            };
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `day${day}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showSuccess(`📥 day${day}.json 已下載`);
+        }
+
+        // 清空內容
+        function clearContent() {
+            if (confirm('確定要清空目前的內容嗎？')) {
+                document.getElementById('contentInput').value = '';
+                document.getElementById('preview').textContent = '輸入內容後將在此顯示預覽...';
+                showSuccess('內容已清空');
+            }
+        }
+
+        // 顯示成功訊息
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 3000);
+        }
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
