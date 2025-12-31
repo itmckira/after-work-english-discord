@@ -1,0 +1,31 @@
+name: Post Daily English to Discord
+
+on:
+  schedule:
+    # 台灣時間 21:00 = UTC 13:00
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Pick content by day
+        run: |
+          DAY=$(date +%d)
+          FILE="contents/day${DAY}.json"
+          if [ ! -f "$FILE" ]; then
+            FILE="contents/day01.json"
+          fi
+          echo "FILE=$FILE" >> $GITHUB_ENV
+
+      - name: Post to Discord
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d @"$FILE" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
