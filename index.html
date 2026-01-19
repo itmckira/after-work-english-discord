@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord 英語內容編輯器</title>
+    <title>Discord Content Editor</title>
     <style>
         * {
             margin: 0;
@@ -13,35 +13,40 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0a0a;
             min-height: 100vh;
             padding: 20px;
+            color: #e0e0e0;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background: #141414;
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid #2a2a2a;
             overflow: hidden;
         }
 
         .header {
-            background: #5865F2;
-            color: white;
+            background: #1a1a1a;
+            color: #ffffff;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid #2a2a2a;
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 24px;
             margin-bottom: 8px;
+            font-weight: 500;
+            letter-spacing: -0.5px;
         }
 
         .header p {
-            opacity: 0.9;
+            opacity: 0.6;
             font-size: 14px;
+            font-weight: 400;
         }
 
         .content {
@@ -54,56 +59,62 @@
 
         label {
             display: block;
-            font-weight: 600;
+            font-weight: 500;
             margin-bottom: 8px;
-            color: #333;
-            font-size: 14px;
+            color: #a0a0a0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         select, textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid #2a2a2a;
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
-            transition: border-color 0.3s;
+            transition: border-color 0.2s;
+            background: #1a1a1a;
+            color: #e0e0e0;
         }
 
         select:focus, textarea:focus {
             outline: none;
-            border-color: #5865F2;
+            border-color: #404040;
         }
 
         textarea {
             min-height: 200px;
             resize: vertical;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
             line-height: 1.6;
         }
 
         .preview-section {
             margin-top: 30px;
             padding-top: 30px;
-            border-top: 2px solid #f0f0f0;
+            border-top: 1px solid #2a2a2a;
         }
 
         .preview-title {
-            font-weight: 600;
+            font-weight: 500;
             margin-bottom: 12px;
-            color: #333;
-            font-size: 16px;
+            color: #a0a0a0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .preview-box {
-            background: #f7f9fc;
-            border: 2px solid #e0e0e0;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
             border-radius: 8px;
             padding: 20px;
             white-space: pre-wrap;
             font-size: 14px;
             line-height: 1.8;
-            color: #2c2f33;
+            color: #c0c0c0;
         }
 
         .button-group {
@@ -114,42 +125,45 @@
 
         button {
             flex: 1;
-            padding: 14px 24px;
-            border: none;
+            padding: 12px 20px;
+            border: 1px solid #2a2a2a;
             border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: #252525;
+            border-color: #404040;
         }
 
         .btn-primary {
-            background: #5865F2;
-            color: white;
+            background: #ffffff;
+            color: #0a0a0a;
+            border-color: #ffffff;
         }
 
         .btn-primary:hover {
-            background: #4752C4;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
             background: #e0e0e0;
+            border-color: #e0e0e0;
         }
 
         .btn-danger {
-            background: #ed4245;
-            color: white;
+            border-color: #3a2a2a;
+            color: #ff6b6b;
         }
 
         .btn-danger:hover {
-            background: #c03537;
+            background: #2a1a1a;
+            border-color: #4a2a2a;
         }
 
         .success-message, .error-message {
@@ -161,48 +175,51 @@
         }
 
         .success-message {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: #1a2a1a;
+            color: #6bff6b;
+            border: 1px solid #2a3a2a;
         }
 
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: #2a1a1a;
+            color: #ff6b6b;
+            border: 1px solid #3a2a2a;
         }
 
         .file-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
             gap: 8px;
             margin-bottom: 20px;
         }
 
         .file-item {
-            padding: 8px;
-            background: #f7f9fc;
-            border: 2px solid #e0e0e0;
+            padding: 10px 8px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
             border-radius: 6px;
             cursor: pointer;
             text-align: center;
             font-size: 13px;
             transition: all 0.2s;
+            color: #606060;
         }
 
         .file-item:hover {
-            border-color: #5865F2;
-            background: #eef0ff;
+            border-color: #404040;
+            background: #202020;
         }
 
         .file-item.exists {
-            background: #d4edda;
-            border-color: #28a745;
+            background: #1a2a1a;
+            border-color: #2a3a2a;
+            color: #6bff6b;
         }
 
         .file-item.local-only {
-            background: #fff3cd;
-            border-color: #ffc107;
+            background: #2a2a1a;
+            border-color: #3a3a2a;
+            color: #ffff6b;
         }
 
         .file-item.loading {
@@ -211,7 +228,7 @@
 
         .legend {
             display: flex;
-            gap: 16px;
+            gap: 20px;
             margin-bottom: 12px;
             font-size: 12px;
         }
@@ -219,34 +236,35 @@
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            color: #707070;
         }
 
         .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            border: 2px solid;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            border: 1px solid;
         }
 
         .legend-color.green {
-            background: #d4edda;
-            border-color: #28a745;
+            background: #1a2a1a;
+            border-color: #2a3a2a;
         }
 
         .legend-color.yellow {
-            background: #fff3cd;
-            border-color: #ffc107;
+            background: #2a2a1a;
+            border-color: #3a3a2a;
         }
 
         .legend-color.gray {
-            background: #f7f9fc;
-            border-color: #e0e0e0;
+            background: #1a1a1a;
+            border-color: #2a2a2a;
         }
 
         .help-text {
             font-size: 12px;
-            color: #666;
+            color: #505050;
             margin-top: 6px;
         }
 
@@ -260,41 +278,52 @@
         .upload-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             padding: 10px 16px;
-            background: #43b581;
-            color: white;
-            border: none;
+            background: #1a2a1a;
+            color: #6bff6b;
+            border: 1px solid #2a3a2a;
             border-radius: 8px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            flex: none;
         }
 
         .upload-btn:hover {
-            background: #3ca374;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(67, 181, 129, 0.4);
+            background: #203020;
+            border-color: #3a4a3a;
         }
 
         .upload-btn:disabled {
-            background: #ccc;
+            background: #1a1a1a;
+            color: #404040;
+            border-color: #2a2a2a;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         #fileInput {
             display: none;
+        }
+
+        /* Minimal line icons using SVG */
+        .icon {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📝 Discord 英語內容編輯器</h1>
-            <p>輕鬆管理每日英語學習內容</p>
+            <h1>Discord Content Editor</h1>
+            <p>Manage daily English learning content</p>
         </div>
 
         <div class="content">
@@ -302,80 +331,110 @@
             <div class="error-message" id="errorMessage"></div>
 
             <div class="form-group">
-                <label>現有檔案</label>
+                <label>Files</label>
                 <div class="legend">
                     <div class="legend-item">
                         <div class="legend-color green"></div>
-                        <span>已在 GitHub</span>
+                        <span>On GitHub</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color yellow"></div>
-                        <span>僅本地暫存</span>
+                        <span>Local Only</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color gray"></div>
-                        <span>尚未建立</span>
+                        <span>Not Created</span>
                     </div>
                 </div>
                 <div class="file-list" id="fileList"></div>
             </div>
 
             <div class="form-group">
-                <label for="daySelect">選擇日期 (Day)</label>
+                <label for="daySelect">Select Day</label>
                 <select id="daySelect">
-                    <option value="">-- 選擇要編輯的日期 --</option>
+                    <option value="">-- Select a day to edit --</option>
                 </select>
-                <div class="help-text">選擇 1-31 對應每月的日期</div>
+                <div class="help-text">Select 1-31 corresponding to each day of the month</div>
                 <div class="upload-section">
                     <input type="file" id="fileInput" accept=".json">
                     <button class="upload-btn" onclick="triggerFileUpload()" id="uploadBtn">
-                        📤 上傳 JSON 檔案
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Upload JSON
                     </button>
-                    <span class="help-text" id="uploadHint">選擇日期後，可上傳 JSON 檔案匯入內容</span>
+                    <span class="help-text" id="uploadHint">Select a day first, then upload a JSON file</span>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="contentInput">Discord 訊息內容</label>
-                <textarea id="contentInput" placeholder="輸入要發送到 Discord 的內容...
+                <label for="contentInput">Message Content</label>
+                <textarea id="contentInput" placeholder="Enter the content to send to Discord...
 
-範例格式：
-🌱 **Daily Gentle English**
+Example format:
+**Daily Gentle English**
 
 Today's sentence:
 &quot;I'm not good at English, but I'm still trying.&quot;
 
 Meaning:
-我英文不好，但我還在努力。"></textarea>
-                <div class="help-text">支援 Discord Markdown 格式：**粗體**、*斜體*、`程式碼`</div>
+I'm not great at English, but I keep practicing."></textarea>
+                <div class="help-text">Supports Discord Markdown: **bold**, *italic*, `code`</div>
             </div>
 
             <div class="preview-section">
-                <div class="preview-title">📋 預覽</div>
-                <div class="preview-box" id="preview">輸入內容後將在此顯示預覽...</div>
+                <div class="preview-title">Preview</div>
+                <div class="preview-box" id="preview">Enter content to see preview...</div>
             </div>
 
             <div class="button-group">
-                <button class="btn-secondary" onclick="loadContent()">📂 載入</button>
-                <button class="btn-primary" onclick="saveContent()">💾 儲存</button>
-                <button class="btn-secondary" onclick="downloadJSON()">⬇️ 下載</button>
-                <button class="btn-danger" onclick="clearContent()">🗑️ 清空</button>
+                <button class="btn-secondary" onclick="loadContent()">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Load
+                </button>
+                <button class="btn-primary" onclick="saveContent()">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Save
+                </button>
+                <button class="btn-secondary" onclick="downloadJSON()">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download
+                </button>
+                <button class="btn-danger" onclick="clearContent()">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    Clear
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // 儲存遠端檔案狀態
+        // Store remote file status
         const remoteFiles = {};
 
-        // 初始化
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             initializeDaySelect();
             updateFileList();
             checkRemoteFiles();
         });
 
-        // 初始化日期選項
+        // Initialize day options
         function initializeDaySelect() {
             const select = document.getElementById('daySelect');
             for (let i = 1; i <= 31; i++) {
@@ -387,7 +446,7 @@ Meaning:
             }
         }
 
-        // 檢查遠端 contents 資料夾內的檔案
+        // Check remote contents folder files
         async function checkRemoteFiles() {
             const fileList = document.getElementById('fileList');
             const items = fileList.querySelectorAll('.file-item');
@@ -403,14 +462,14 @@ Meaning:
                         remoteFiles[dayNum] = true;
                     }
                 } catch (e) {
-                    // 檔案不存在或網路錯誤
+                    // File doesn't exist or network error
                 }
             }
 
             updateFileList();
         }
 
-        // 更新檔案列表顯示
+        // Update file list display
         function updateFileList() {
             const fileList = document.getElementById('fileList');
             fileList.innerHTML = '';
@@ -438,22 +497,22 @@ Meaning:
             }
         }
 
-        // 即時預覽
+        // Real-time preview
         document.getElementById('contentInput').addEventListener('input', function() {
             const preview = document.getElementById('preview');
             const content = this.value.trim();
-            preview.textContent = content || '輸入內容後將在此顯示預覽...';
+            preview.textContent = content || 'Enter content to see preview...';
         });
 
-        // 載入內容
+        // Load content
         async function loadContent() {
             const day = document.getElementById('daySelect').value;
             if (!day) {
-                showError('請先選擇日期');
+                showError('Please select a day first');
                 return;
             }
 
-            // 優先從遠端載入
+            // Load from remote first
             if (remoteFiles[day]) {
                 try {
                     const response = await fetch(`contents/day${day}.json`);
@@ -461,44 +520,44 @@ Meaning:
                         const data = await response.json();
                         document.getElementById('contentInput').value = data.content;
                         document.getElementById('preview').textContent = data.content;
-                        showSuccess(`已從 GitHub 載入 Day ${day} 的內容`);
+                        showSuccess(`Loaded Day ${day} content from GitHub`);
                         return;
                     }
                 } catch (e) {
-                    // 載入失敗，嘗試本地
+                    // Load failed, try local
                 }
             }
 
-            // 從本地載入
+            // Load from local
             const saved = localStorage.getItem(`day${day}`);
             if (saved) {
                 try {
                     const data = JSON.parse(saved);
                     document.getElementById('contentInput').value = data.content;
                     document.getElementById('preview').textContent = data.content;
-                    showSuccess(`已從本地暫存載入 Day ${day} 的內容`);
+                    showSuccess(`Loaded Day ${day} content from local storage`);
                 } catch (e) {
-                    showError('載入失敗：資料格式錯誤');
+                    showError('Load failed: Invalid data format');
                 }
             } else {
                 document.getElementById('contentInput').value = '';
-                document.getElementById('preview').textContent = '輸入內容後將在此顯示預覽...';
-                showError(`Day ${day} 尚未建立內容`);
+                document.getElementById('preview').textContent = 'Enter content to see preview...';
+                showError(`Day ${day} has no content yet`);
             }
         }
 
-        // 儲存內容
+        // Save content
         function saveContent() {
             const day = document.getElementById('daySelect').value;
             const content = document.getElementById('contentInput').value.trim();
 
             if (!day) {
-                showError('請選擇日期');
+                showError('Please select a day');
                 return;
             }
 
             if (!content) {
-                showError('請輸入內容');
+                showError('Please enter content');
                 return;
             }
 
@@ -507,22 +566,22 @@ Meaning:
             };
 
             localStorage.setItem(`day${day}`, JSON.stringify(data));
-            showSuccess(`✅ Day ${day} 儲存成功！`);
+            showSuccess(`Day ${day} saved successfully`);
             updateFileList();
         }
 
-        // 下載 JSON 檔案
+        // Download JSON file
         function downloadJSON() {
             const day = document.getElementById('daySelect').value;
             const content = document.getElementById('contentInput').value.trim();
 
             if (!day) {
-                showError('請選擇日期');
+                showError('Please select a day');
                 return;
             }
 
             if (!content) {
-                showError('請輸入內容');
+                showError('Please enter content');
                 return;
             }
 
@@ -539,19 +598,19 @@ Meaning:
             a.click();
             URL.revokeObjectURL(url);
 
-            showSuccess(`📥 day${day}.json 已下載`);
+            showSuccess(`day${day}.json downloaded`);
         }
 
-        // 清空內容
+        // Clear content
         function clearContent() {
-            if (confirm('確定要清空目前的內容嗎？')) {
+            if (confirm('Are you sure you want to clear the current content?')) {
                 document.getElementById('contentInput').value = '';
-                document.getElementById('preview').textContent = '輸入內容後將在此顯示預覽...';
-                showSuccess('內容已清空');
+                document.getElementById('preview').textContent = 'Enter content to see preview...';
+                showSuccess('Content cleared');
             }
         }
 
-        // 顯示成功訊息
+        // Show success message
         function showSuccess(message) {
             const el = document.getElementById('successMessage');
             el.textContent = message;
@@ -562,7 +621,7 @@ Meaning:
             }, 3000);
         }
 
-        // 顯示錯誤訊息
+        // Show error message
         function showError(message) {
             const el = document.getElementById('errorMessage');
             el.textContent = message;
@@ -573,30 +632,30 @@ Meaning:
             }, 3000);
         }
 
-        // 觸發檔案上傳
+        // Trigger file upload
         function triggerFileUpload() {
             const day = document.getElementById('daySelect').value;
             if (!day) {
-                showError('請先選擇日期再上傳檔案');
+                showError('Please select a day before uploading');
                 return;
             }
             document.getElementById('fileInput').click();
         }
 
-        // 處理檔案上傳
+        // Handle file upload
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             const day = document.getElementById('daySelect').value;
             if (!day) {
-                showError('請先選擇日期');
+                showError('Please select a day first');
                 this.value = '';
                 return;
             }
 
             if (!file.name.endsWith('.json')) {
-                showError('請上傳 JSON 格式的檔案');
+                showError('Please upload a JSON file');
                 this.value = '';
                 return;
             }
@@ -610,24 +669,24 @@ Meaning:
                         document.getElementById('contentInput').value = data.content;
                         document.getElementById('preview').textContent = data.content;
 
-                        // 自動儲存到本地
+                        // Auto save to local
                         localStorage.setItem(`day${day}`, JSON.stringify({ content: data.content }));
                         updateFileList();
 
-                        showSuccess(`✅ 已匯入 ${file.name} 到 Day ${day}`);
+                        showSuccess(`Imported ${file.name} to Day ${day}`);
                     } else {
-                        showError('JSON 檔案格式錯誤：缺少 content 欄位');
+                        showError('Invalid JSON format: missing content field');
                     }
                 } catch (err) {
-                    showError('檔案解析失敗：' + err.message);
+                    showError('Parse failed: ' + err.message);
                 }
             };
             reader.onerror = function() {
-                showError('檔案讀取失敗');
+                showError('File read failed');
             };
             reader.readAsText(file);
 
-            // 重置 input 以便可以再次選擇相同檔案
+            // Reset input to allow selecting the same file again
             this.value = '';
         });
     </script>
