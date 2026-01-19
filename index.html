@@ -200,6 +200,50 @@
             border-color: #28a745;
         }
 
+        .file-item.local-only {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .file-item.loading {
+            opacity: 0.5;
+        }
+
+        .legend {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .legend-color.green {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .legend-color.yellow {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .legend-color.gray {
+            background: #f7f9fc;
+            border-color: #e0e0e0;
+        }
+
         .help-text {
             font-size: 12px;
             color: #666;
@@ -219,7 +263,21 @@
             <div class="error-message" id="errorMessage"></div>
 
             <div class="form-group">
-                <label>現有檔案（綠色表示已存在）</label>
+                <label>現有檔案</label>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color green"></div>
+                        <span>已在 GitHub</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color yellow"></div>
+                        <span>僅本地暫存</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color gray"></div>
+                        <span>尚未建立</span>
+                    </div>
+                </div>
                 <div class="file-list" id="fileList"></div>
             </div>
 
@@ -261,10 +319,14 @@ Meaning:
     </div>
 
     <script>
+        // 儲存遠端檔案狀態
+        const remoteFiles = {};
+
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             initializeDaySelect();
             updateFileList();
+            checkRemoteFiles();
         });
 
         // 初始化日期選項
@@ -277,6 +339,29 @@ Meaning:
                 option.textContent = `Day ${dayNum}`;
                 select.appendChild(option);
             }
+        }
+
+        // 檢查遠端 contents 資料夾內的檔案
+        async function checkRemoteFiles() {
+            const fileList = document.getElementById('fileList');
+            const items = fileList.querySelectorAll('.file-item');
+            items.forEach(item => item.classList.add('loading'));
+
+            for (let i = 1; i <= 31; i++) {
+                const dayNum = String(i).padStart(2, '0');
+                const fileName = `day${dayNum}.json`;
+
+                try {
+                    const response = await fetch(`contents/${fileName}`, { method: 'HEAD' });
+                    if (response.ok) {
+                        remoteFiles[dayNum] = true;
+                    }
+                } catch (e) {
+                    // 檔案不存在或網路錯誤
+                }
+            }
+
+            updateFileList();
         }
 
         // 更新檔案列表顯示
@@ -294,9 +379,13 @@ Meaning:
                     loadContent();
                 };
 
-                // 檢查是否已有儲存的內容
-                if (localStorage.getItem(`day${dayNum}`)) {
+                const hasRemote = remoteFiles[dayNum];
+                const hasLocal = localStorage.getItem(`day${dayNum}`);
+
+                if (hasRemote) {
                     fileItem.classList.add('exists');
+                } else if (hasLocal) {
+                    fileItem.classList.add('local-only');
                 }
 
                 fileList.appendChild(fileItem);
@@ -311,24 +400,43 @@ Meaning:
         });
 
         // 載入內容
-        function loadContent() {
+        async function loadContent() {
             const day = document.getElementById('daySelect').value;
             if (!day) {
                 showError('請先選擇日期');
                 return;
             }
 
+            // 優先從遠端載入
+            if (remoteFiles[day]) {
+                try {
+                    const response = await fetch(`contents/day${day}.json`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById('contentInput').value = data.content;
+                        document.getElementById('preview').textContent = data.content;
+                        showSuccess(`已從 GitHub 載入 Day ${day} 的內容`);
+                        return;
+                    }
+                } catch (e) {
+                    // 載入失敗，嘗試本地
+                }
+            }
+
+            // 從本地載入
             const saved = localStorage.getItem(`day${day}`);
             if (saved) {
                 try {
                     const data = JSON.parse(saved);
                     document.getElementById('contentInput').value = data.content;
                     document.getElementById('preview').textContent = data.content;
-                    showSuccess(`已載入 Day ${day} 的內容`);
+                    showSuccess(`已從本地暫存載入 Day ${day} 的內容`);
                 } catch (e) {
                     showError('載入失敗：資料格式錯誤');
                 }
             } else {
+                document.getElementById('contentInput').value = '';
+                document.getElementById('preview').textContent = '輸入內容後將在此顯示預覽...';
                 showError(`Day ${day} 尚未建立內容`);
             }
         }
