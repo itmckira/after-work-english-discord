@@ -249,6 +249,45 @@
             color: #666;
             margin-top: 6px;
         }
+
+        .upload-section {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: #43b581;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #3ca374;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 181, 129, 0.4);
+        }
+
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #fileInput {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -287,6 +326,13 @@
                     <option value="">-- 選擇要編輯的日期 --</option>
                 </select>
                 <div class="help-text">選擇 1-31 對應每月的日期</div>
+                <div class="upload-section">
+                    <input type="file" id="fileInput" accept=".json">
+                    <button class="upload-btn" onclick="triggerFileUpload()" id="uploadBtn">
+                        📤 上傳 JSON 檔案
+                    </button>
+                    <span class="help-text" id="uploadHint">選擇日期後，可上傳 JSON 檔案匯入內容</span>
+                </div>
             </div>
 
             <div class="form-group">
@@ -526,6 +572,64 @@ Meaning:
                 el.style.display = 'none';
             }, 3000);
         }
+
+        // 觸發檔案上傳
+        function triggerFileUpload() {
+            const day = document.getElementById('daySelect').value;
+            if (!day) {
+                showError('請先選擇日期再上傳檔案');
+                return;
+            }
+            document.getElementById('fileInput').click();
+        }
+
+        // 處理檔案上傳
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const day = document.getElementById('daySelect').value;
+            if (!day) {
+                showError('請先選擇日期');
+                this.value = '';
+                return;
+            }
+
+            if (!file.name.endsWith('.json')) {
+                showError('請上傳 JSON 格式的檔案');
+                this.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+
+                    if (data.content !== undefined) {
+                        document.getElementById('contentInput').value = data.content;
+                        document.getElementById('preview').textContent = data.content;
+
+                        // 自動儲存到本地
+                        localStorage.setItem(`day${day}`, JSON.stringify({ content: data.content }));
+                        updateFileList();
+
+                        showSuccess(`✅ 已匯入 ${file.name} 到 Day ${day}`);
+                    } else {
+                        showError('JSON 檔案格式錯誤：缺少 content 欄位');
+                    }
+                } catch (err) {
+                    showError('檔案解析失敗：' + err.message);
+                }
+            };
+            reader.onerror = function() {
+                showError('檔案讀取失敗');
+            };
+            reader.readAsText(file);
+
+            // 重置 input 以便可以再次選擇相同檔案
+            this.value = '';
+        });
     </script>
 </body>
 </html>
